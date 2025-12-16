@@ -37,18 +37,26 @@ app.delete('/',(req,res) => {
 })
 
 // Start the server
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`\nListening on port ${port}\n`);
 });
+
+let connections = [];
+
+// Track open connections
+server.on('connection', connection => {
+    connections.push(connection);
+    connection.on('close', () => connections = connections.filter(curr => curr !== connection));
+});
+
 
 function shutdown() {
     console.log('signal received. Starting graceful shutdown.');
 
-    // Perform cleanup operations here
-    app.close(() =>    {
-
-    console.log('Cleanup finished. Exiting.');
-    process.exit(0); // Exit the process cleanly
+    // Perform cleanup operations here. http server will not close till all open connections close
+    server.close(() =>    {
+        console.log('Cleanup finished. Exiting.');
+        process.exit(0); // Exit the process cleanly
 
     });
     // Force close the server after 5 seconds
@@ -56,6 +64,12 @@ function shutdown() {
     console.error('Could not close connections in time, forcefully shutting down');
     process.exit(1);
       }, 5000);
+
+    // Now terminate any remaining open connections
+    // This operation is in a race with the actions of server.close()
+    // connections.forEach(curr => curr.end());
+    // Any that remain open after 4 secs get zapped
+    setTimeout(() => connections.forEach(curr => { curr.destroy(); console.log('connection zapped')}), 4000);
 }
 
 // Listen for SIGs
