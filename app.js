@@ -32,6 +32,10 @@ app.post('/', (req, res) => {
     res.status(200).end();
 });
 
+app.delete('/',(req,res) => {
+    shutdown();
+})
+
 // Start the server
 app.listen(port, () => {
     console.log(`\nListening on port ${port}\n`);
