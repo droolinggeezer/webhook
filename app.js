@@ -19,7 +19,11 @@ app.get('/', (req, res) => {
         console.log('WEBHOOK VERIFIED');
         res.status(200).send(challenge);
     } else {
-        console.log('WEBHOOK VERIFICATION FAILED');
+        if(!mode) {
+            console.log('naked get'); }
+        else {
+            console.log('WEBHOOK VERIFICATION FAILED');}
+
         res.status(403).end();
     }
 });
