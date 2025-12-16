@@ -16,9 +16,10 @@ app.get('/', (req, res) => {
     const { 'hub.mode': mode, 'hub.challenge': challenge, 'hub.verify_token': token } = req.query;
 
     if (mode === 'subscribe' && token === verifyToken) {
-        console.log('WEBHOOK VERIFIED!');
+        console.log('WEBHOOK VERIFIED');
         res.status(200).send(challenge);
     } else {
+        console.log('WEBHOOK VERIFICATION FAILED');
         res.status(403).end();
     }
 });
@@ -35,3 +36,24 @@ app.post('/', (req, res) => {
 app.listen(port, () => {
     console.log(`\nListening on port ${port}\n`);
 });
+
+function shutdown() {
+    console.log('signal received. Starting graceful shutdown.');
+
+    // Perform cleanup operations here
+    app.close(() =>    {
+
+    console.log('Cleanup finished. Exiting.');
+    process.exit(0); // Exit the process cleanly
+
+    });
+    // Force close the server after 5 seconds
+    setTimeout(() => {
+    console.error('Could not close connections in time, forcefully shutting down');
+    process.exit(1);
+      }, 5000);
+}
+
+// Listen for SIGs
+process.on('SIGTERM', shutdown );
+process.on('SIGINT', shutdown );
