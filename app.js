@@ -53,6 +53,15 @@ server.on('connection', connection => {
     connection.on('close', () => connections = connections.filter(curr => curr !== connection));
 });
 
+app.use((req, res, next) => {
+    console.log("a middleware")
+    next();
+});
+
+app.use((err, req, res, next) => {
+    console.error(err.stack)
+    res.status(500).send('Something broke!')
+});
 
 function shutdown() {
     console.log('signal received. Starting graceful shutdown.');
