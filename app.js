@@ -4,6 +4,16 @@ const express = require('express');
 // Create an Express app
 const app = express();
 
+app.use((req, res, next) => {
+    console.log("a middleware")
+    next();
+});
+
+app.use((err, req, res, next) => {
+    console.error(err.stack)
+    res.status(500).send('Something broke!')
+});
+
 // Middleware to parse JSON bodies
 app.use(express.json());
 
