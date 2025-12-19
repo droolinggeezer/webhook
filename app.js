@@ -17,6 +17,11 @@ app.use((err, req, res, next) => {
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+app.use((req, res, next) => {
+    console.log("another middleware")
+    next();
+});
+
 // Set port and verify_token
 const port = process.env.PORT || 3000;
 const verifyToken = process.env.VERIFY_TOKEN;
